@@ -9,7 +9,7 @@ namespace AFetter.ApiRateLimit.Extension
         public static IServiceCollection AddApiRateLimiter(this IServiceCollection services)
         {
             services.AddSingleton<IMemoryCacheStore, MemoryCacheStore>();
-            services.AddTransient<IRequestValidator, RequestValidator>();
+            services.AddTransient<IRequestRules, RequestRules>();
             return services;
         }
     }

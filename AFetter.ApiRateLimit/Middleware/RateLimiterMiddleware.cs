@@ -13,11 +13,11 @@ namespace AFetter.ApiRateLimiter.Middleware
         private readonly RequestDelegate _next;
         private readonly RateLimitSettings _configuration;
         private readonly IMemoryCacheStore _requestStore;
-        private readonly IRequestValidator _requestValidator;
+        private readonly IRequestRules _requestValidator;
         
         public RateLimiterMiddleware(RequestDelegate next, 
             IMemoryCacheStore requestStore,
-            IRequestValidator requestValidator,
+            IRequestRules requestValidator,
             IOptions<RateLimitSettings> configuration)
         {
             _next = next;
@@ -37,16 +37,22 @@ namespace AFetter.ApiRateLimiter.Middleware
 
             var requestKey = ResolveIdentify(context);
             var counter = await _requestStore.GetAsync(requestKey);
+            var isWindowExpired = _requestValidator.IsSessionExpired(counter.Timestamp, _configuration.ExpireTimeInSeconds);
+            var isCountValid = _requestValidator.IsRequestCountValid(counter.Count, _configuration.Limit);
 
-            if (_requestValidator.IsRequestCountValid(counter.Count, _configuration.Limit))
-            {
-                await ProcessRequest(context, requestKey);
-            }
-            else
+            if (!isCountValid && !isWindowExpired)
             {
                 await ReturnTooManyRequestsResponse(context, requestKey);
+                return;
             }
 
+            if (isWindowExpired)
+            {
+                counter.Init();
+                await _requestStore.SetAsync(requestKey, counter);
+            }
+
+            await ProcessRequest(context, requestKey);
         }
 
         public string ResolveIdentify(HttpContext context)
@@ -62,14 +68,6 @@ namespace AFetter.ApiRateLimiter.Middleware
 
             context.Response.Headers["X-Retry-After"] = counter.Timestamp.ToString();
             context.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
-
-            var isExpired = _requestValidator.IsSessionExpired(counter.Timestamp, _configuration.ExpireTimeInSeconds);
-            if (isExpired)
-            {
-                counter.Count = 0;
-                counter.Timestamp = DateTime.UtcNow;
-                await _requestStore.SetAsync(requestKey, counter);
-            }
 
             await context.Response.WriteAsync($"Rate limit exceeded.Try again in #{remaingTime} seconds");
         }

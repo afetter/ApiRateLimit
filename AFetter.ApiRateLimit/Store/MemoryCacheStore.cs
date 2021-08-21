@@ -27,11 +27,7 @@ namespace AFetter.ApiRateLimiter.Store
                 return Task.FromResult(stored);
             }
 
-            return Task.FromResult(new RateLimitData
-            {
-                Count = 0,
-                Timestamp = DateTime.UtcNow
-            }) ;
+            return Task.FromResult(new RateLimitData().Init());
         }
 
         public Task SetAsync(string id, RateLimitData entry, TimeSpan? expirationTime = null, CancellationToken cancellationToken = default)

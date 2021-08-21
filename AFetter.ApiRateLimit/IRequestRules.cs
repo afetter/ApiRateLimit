@@ -2,7 +2,7 @@
 
 namespace AFetter.ApiRateLimiter
 {
-    public interface IRequestValidator
+    public interface IRequestRules
     {
         bool IsRequestCountValid(int count, int limit);
         bool IsSessionExpired(DateTime datetime, int expireTimeInSeconds);

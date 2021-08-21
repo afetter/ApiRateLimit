@@ -6,5 +6,12 @@ namespace AFetter.ApiRateLimiter.Model
     {
         public DateTime Timestamp { get; set; }
         public int Count { get; set; }
+
+        public RateLimitData Init()
+        {
+            Timestamp = DateTime.UtcNow;
+            Count = 1;
+            return this;
+        }
     }
 }

@@ -1,7 +1,12 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace AFetter.ApiRateLimiter.Tests
 {
@@ -17,11 +22,7 @@ namespace AFetter.ApiRateLimiter.Tests
                 .UseStartup<Demo.Startup>()
                 .ConfigureAppConfiguration((context, config) =>
                 {
-                    //config.SetBasePath(Path.Combine(
-                    //    Directory.GetCurrentDirectory(),
-                    //    "..\\..\\..\\..\\MyOffer.Web"));
-
-                    //config.AddJsonFile("appsettings.json");
+                    config.AddJsonFile("appsettings.json");
                 });
 
             _server = new TestServer(builder);

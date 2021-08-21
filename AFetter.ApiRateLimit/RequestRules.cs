@@ -3,7 +3,7 @@
 namespace AFetter.ApiRateLimiter
 {
 
-    public class RequestValidator : IRequestValidator
+    public class RequestRules : IRequestRules
     {
         public int GetRemainTimeSeconds(DateTime datetime, int expireTimeInSeconds)
         {
@@ -11,9 +11,9 @@ namespace AFetter.ApiRateLimiter
         }
 
         public bool IsRequestCountValid(int count, int limit) 
-            => count < limit;
+            => count <= limit;
 
         public bool IsSessionExpired(DateTime datetime, int expireTimeInSeconds) 
-            => datetime.AddSeconds(expireTimeInSeconds) < DateTime.UtcNow;
+            => datetime.AddSeconds(expireTimeInSeconds).ToUniversalTime() < DateTime.UtcNow;
     }
 }

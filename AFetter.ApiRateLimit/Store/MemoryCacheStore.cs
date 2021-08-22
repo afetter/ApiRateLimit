@@ -15,11 +15,6 @@ namespace AFetter.ApiRateLimiter.Store
             _cache = cache;
         }
 
-        public Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(_cache.TryGetValue(id, out _));
-        }
-
         public Task<RateLimitData> GetAsync(string id, CancellationToken cancellationToken = default)
         {
             if (_cache.TryGetValue(id, out RateLimitData stored))
